@@ -220,20 +220,10 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 			item.transform.localPosition = Vector3.zero;
 			item.MakeRaycast(true);
 			myDadItem = item;
-            if (item.CompareTag("TShirt_blue"))
-            {
-                ClothingManager.instance.tshirt.SetActive(true);
 
-                item.gameObject.SetActive(false);
-            }
-            if (item.CompareTag("shorts"))
-            {
-                ClothingManager.instance.shorts.SetActive(true);
-
-                item.gameObject.SetActive(false);
+            DressFunction(item);
 
 
-            }
         }
             //UpdateBackgroundState();
         }
@@ -397,4 +387,31 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 			//secondCell.UpdateBackgroundState();
 		}
 	}
+
+
+    void DressFunction(DragAndDropItem item)
+    {
+        if (item.CompareTag("TShirt_blue"))
+        {
+            ClothingManager.instance.tshirt.SetActive(true);
+        }
+        if (item.CompareTag("shorts"))
+        {
+            ClothingManager.instance.shorts.SetActive(true);
+        }
+        if (item.CompareTag("hat"))
+        {
+            ClothingManager.instance.hat.SetActive(true);
+        }
+        if (item.CompareTag("r_boot"))
+        {
+            ClothingManager.instance.l_boots.SetActive(true);
+        }
+        if (item.CompareTag("l_boot"))
+        {
+            ClothingManager.instance.r_boots.SetActive(true);
+        }
+        item.gameObject.SetActive(false);
+
+    }
 }

@@ -7,6 +7,9 @@ TagManager:
   - TShirt_blue
   - Jacket
   - shorts
+  - r_boot
+  - l_boot
+  - hat
   layers:
   - Default
   - TransparentFX

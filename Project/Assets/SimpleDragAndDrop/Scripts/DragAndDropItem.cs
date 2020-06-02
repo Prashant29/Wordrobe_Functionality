@@ -54,6 +54,11 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 			Image myImage = GetComponent<Image>();
 			myImage.raycastTarget = false;                                        	// Disable icon's raycast for correct drop handling
 			Image iconImage = icon.AddComponent<Image>();
+			Color c = new Color();
+			c = myImage.color;
+			c.a = 0;
+			myImage.color = c;
+
 			iconImage.raycastTarget = false;
 			iconImage.sprite = myImage.sprite;
 			RectTransform iconRect = icon.GetComponent<RectTransform>();
