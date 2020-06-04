@@ -6,7 +6,7 @@ using UnityEngine;
 public class ClothingManager : MonoBehaviour
 {
     public static ClothingManager instance = null;
-
+     
 
     public GameObject tshirt, shorts, l_boots, r_boots, hat, sunglass;
 

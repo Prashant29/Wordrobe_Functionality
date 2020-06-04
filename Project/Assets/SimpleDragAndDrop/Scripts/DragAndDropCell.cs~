@@ -88,9 +88,7 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
     /// <param name="item"> dragged item </param>
     private void OnAnyItemDragEnd(DragAndDropItem item)
     {
-        
-
-        UpdateMyItem();
+		UpdateMyItem();
 		if (myDadItem != null)
         {
 			myDadItem.MakeRaycast(true);                                  	// Enable item's raycast
@@ -248,7 +246,6 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
             SendNotification(desc);                                         // Notify application about item destruction
 			if (myDadItem != null)
 			{
-                
 				Destroy(myDadItem.gameObject);
 			}
         }
