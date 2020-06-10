@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
+using UnityEngine.Rendering;
 
 /// <summary>
 /// Every item's cell must contain this script
@@ -65,7 +66,8 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
     /// <param name="item"> dragged item </param>
     private void OnAnyItemDragStart(DragAndDropItem item)
     {
-		UpdateMyItem();
+        //item.GetComponent<Transform>().SetAsLastSibling();
+        UpdateMyItem();
 		if (myDadItem != null)
         {
 			myDadItem.MakeRaycast(false);                                  	// Disable item's raycast for correct drop handling
@@ -88,11 +90,12 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
     /// <param name="item"> dragged item </param>
     private void OnAnyItemDragEnd(DragAndDropItem item)
     {
-        
+       
 
         UpdateMyItem();
 		if (myDadItem != null)
         {
+        Debug.Log("MY dataItem:" + myDadItem.name);
 			myDadItem.MakeRaycast(true);                                  	// Enable item's raycast
         }
 		//UpdateBackgroundState();
@@ -144,12 +147,12 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
                                             }
                                             else
                                             {
-												PlaceItem(item);            // Delete old item and place dropped item into this cell
+												PlaceItem(item, desc.destinationCell);            // Delete old item and place dropped item into this cell
                                             }
                                         }
                                         else
                                         {
-											PlaceItem(item);                // Place dropped item into this empty cell
+											PlaceItem(item, desc.destinationCell);                // Place dropped item into this empty cell
                                         }
                                     }
                                     break;
@@ -162,7 +165,7 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
                                     StartCoroutine(NotifyOnDragEnd(desc));  // Send notification after drop will be finished
                                     if (desc.permission == true)            // If drop permitted by application
                                     {
-										PlaceItem(item);                    // Place dropped item into this cell
+										PlaceItem(item, desc.destinationCell);                    // Place dropped item into this cell
                                     }
                                     break;
                             }
@@ -176,7 +179,7 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
                             StartCoroutine(NotifyOnDragEnd(desc));          // Send notification after drop will be finished
                             if (desc.permission == true)                    // If drop permitted by application
                             {
-								PlaceItem(item);                            // Place dropped item in this cell
+								PlaceItem(item, desc.destinationCell);                            // Place dropped item in this cell
                             }
                             break;
                         default:
@@ -202,14 +205,21 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 	/// Put item into this cell.
 	/// </summary>
 	/// <param name="item">Item.</param>
-	private void PlaceItem(DragAndDropItem item)
+	private void PlaceItem(DragAndDropItem item, DragAndDropCell targetCell)
 	{
         Debug.LogError("Tag: " + item.tag);
-		if (item != null)
+        Debug.LogError("targetCell: " + targetCell.tag);
+		if (item != null
+        && (((item.CompareTag("TShirt_blue") || item.CompareTag("Red_jacket") || item.CompareTag("TShirt_yellow") ) && targetCell.CompareTag("TShirt"))// Condition for Top wear
+        || ((item.CompareTag("Full_Pant") || item.CompareTag("Short_blue") || item.CompareTag("Short_skin") ) && targetCell.CompareTag("Pants")) // Condition for Bottom wear
+        //|| ((item.CompareTag("Tshirt_blue") || item.CompareTag("Red_jacket") || item.CompareTag("Tshirt_yellow") ) && targetCell.CompareTag("Foot"))
+        )
+            )
+        
 		{
 			DestroyItem();                                            	// Remove current item from this cell
 			myDadItem = null;
-			DragAndDropCell cell = item.GetComponentInParent<DragAndDropCell>();
+			DragAndDropCell cell = item.GetComponent<DragAndDropCell>();
 			if (cell != null)
 			{
 				if (cell.unlimitedSource == true)
@@ -227,6 +237,8 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
             DressFunction(item);
 
 
+        }else{
+            Debug.LogError("Item misMatched");
         }
             //UpdateBackgroundState();
         }
@@ -280,6 +292,7 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
         if (desc != null)
         {
             desc.triggerType = TriggerType.DropRequest;
+
             desc.permission = true;
             SendNotification(desc);
             result = desc.permission;
@@ -321,7 +334,7 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 	/// </summary>
 	public void UpdateMyItem()
 	{
-		myDadItem = GetComponentInChildren<DragAndDropItem>();
+		myDadItem = GetComponent<DragAndDropItem>();
 	}
 
 	/// <summary>
@@ -341,8 +354,8 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
     {
         if (newItem != null)
         {
-			PlaceItem(newItem);
             DropEventDescriptor desc = new DropEventDescriptor();
+			PlaceItem(newItem, desc.destinationCell);
             // Fill event descriptor
             desc.triggerType = TriggerType.ItemAdded;
             desc.item = newItem;
@@ -393,29 +406,71 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 	}
 
 
-    void DressFunction(DragAndDropItem item)
+    void DressFunction(DragAndDropItem item )
     {
+        //Debug.LogError("Target Tag: " + destinationCell.tag);
         if (item.CompareTag("TShirt_blue"))
         {
-            ClothingManager.instance.tshirt.SetActive(true);
+            Character.instance.upperNum = 1;
+            Character.instance.InitDresses();
+            foreach (var top in ClothingManager.instance.topWear)
+            {
+                top.raycastTarget = false;
+            }
+            ClothingManager.instance.handIndicator.anchoredPosition = new Vector2(304, 66.1f);
+            ClothingManager.instance.clothIndicator.anchoredPosition = new Vector2(150, 66.1f);
         }
-        if (item.CompareTag("shorts"))
+        if (item.CompareTag("TShirt_yellow"))
         {
-            ClothingManager.instance.shorts.SetActive(true);
+            Character.instance.upperNum = 2;
+            Character.instance.InitDresses();
+             foreach (var top in ClothingManager.instance.topWear)
+            {
+                top.raycastTarget = false;
+            }
+            ClothingManager.instance.handIndicator.anchoredPosition = new Vector2(304, 66.1f);
+            ClothingManager.instance.clothIndicator.anchoredPosition = new Vector2(150, 66.1f);
         }
-        if (item.CompareTag("hat"))
+        if (item.CompareTag("Red_jacket") )
         {
-            ClothingManager.instance.hat.SetActive(true);
+            ClothingManager.instance.WarningObject.GetComponentInChildren<Text>().text = "It's very hot outside!!!";
+            ClothingManager.instance.WarningObject.SetActive(true);
+            StartCoroutine(ClothingManager.instance.GameObjectBehaviour(ClothingManager.instance.WarningObject, false));
+            ClothingManager.instance.WarningObject.SetActive(true);
+            
         }
-        if (item.CompareTag("r_boot"))
+
+        if (item.CompareTag("Full_Pant") )
         {
-            ClothingManager.instance.l_boots.SetActive(true);
+            if(ClothingManager.instance.isRainy){
+                Character.instance.downNum = 3;
+                Character.instance.InitDresses();
+                foreach (var top in ClothingManager.instance.bottomWear)
+                {
+                    top.raycastTarget = false;
+                }
+            }
         }
-        if (item.CompareTag("l_boot"))
+        if (item.CompareTag("Short_skin") )
         {
-            ClothingManager.instance.r_boots.SetActive(true);
+            Character.instance.downNum = 2;
+            Character.instance.InitDresses();
+            foreach (var top in ClothingManager.instance.bottomWear)
+            {
+                top.raycastTarget = false;
+            }
+        }
+         if (item.CompareTag("Short_blue") )
+        {
+            Character.instance.downNum = 1;
+            Character.instance.InitDresses();
+            foreach (var top in ClothingManager.instance.bottomWear)
+            {
+                top.raycastTarget = false;
+            }
         }
         item.gameObject.SetActive(false);
+        
 
     }
 }

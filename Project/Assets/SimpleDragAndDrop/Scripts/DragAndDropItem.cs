@@ -37,12 +37,15 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 		}
 	}
 
+	public Image myImage;
+
 	/// <summary>
 	/// This item started to drag.
 	/// </summary>
 	/// <param name="eventData"></param>
 	public void OnBeginDrag(PointerEventData eventData)
 	{
+		//Debug.Log("Drag started: " + this.name);
 		if (dragDisabled == false)
 		{
 			sourceCell = GetCell();                       							// Remember source cell
@@ -51,7 +54,7 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 			icon = new GameObject();
 			icon.transform.SetParent(canvas.transform);
 			icon.name = "Icon";
-			Image myImage = GetComponent<Image>();
+			myImage = GetComponent<Image>();
 			myImage.raycastTarget = false;                                        	// Disable icon's raycast for correct drop handling
 			Image iconImage = icon.AddComponent<Image>();
             Color c = new Color();
@@ -94,6 +97,7 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 	/// <param name="eventData"></param>
 	public void OnEndDrag(PointerEventData eventData)
 	{
+		Debug.Log("ON Drag end");
 		ResetConditions();
 	}
 
@@ -128,12 +132,12 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             if (condition)
             {
 
-			Color c = new Color();
-			c = image.color;
-			c.a = 1;
-			image.color = c;
+				Color c = new Color();
+				c = image.color;
+				c.a = 1;
+				image.color = c;
             }
-			image.raycastTarget = condition;
+			//image.raycastTarget = condition;
 		}
 	}
 
@@ -143,7 +147,7 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 	/// <returns>The cell.</returns>
 	public DragAndDropCell GetCell()
 	{
-		return GetComponentInParent<DragAndDropCell>();
+		return GetComponent<DragAndDropCell>();
 	}
 
 	/// <summary>

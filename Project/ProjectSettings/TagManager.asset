@@ -10,6 +10,14 @@ TagManager:
   - r_boot
   - l_boot
   - hat
+  - TShirt
+  - Pants
+  - Red_jacket
+  - TShirt_yellow
+  - Short_blue
+  - Short_skin
+  - Full_Pant
+  - RainCoat
   layers:
   - Default
   - TransparentFX
@@ -46,4 +54,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 3363979325
     locked: 0
