@@ -95,7 +95,7 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
         UpdateMyItem();
 		if (myDadItem != null)
         {
-        Debug.Log("MY dataItem:" + myDadItem.name);
+       // Debug.Log("MY dataItem:" + myDadItem.name);
 			myDadItem.MakeRaycast(true);                                  	// Enable item's raycast
         }
 		//UpdateBackgroundState();
@@ -189,8 +189,9 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
             }
             if (item != null)
             {
-                if (item.GetComponentInParent<DragAndDropCell>() == null)   // If item have no cell after drop
+                if (item.GetComponent<DragAndDropCell>() == null)   // If item have no cell after drop
                 {
+                    Debug.LogError("IS it from here: " + item.name + " ==>");
                     Destroy(item.gameObject);                               // Destroy it
                 }
             }
@@ -212,12 +213,12 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 		if (item != null
         && (((item.CompareTag("TShirt_blue") || item.CompareTag("Red_jacket") || item.CompareTag("TShirt_yellow") ) && targetCell.CompareTag("TShirt"))// Condition for Top wear
         || ((item.CompareTag("Full_Pant") || item.CompareTag("Short_blue") || item.CompareTag("Short_skin") ) && targetCell.CompareTag("Pants")) // Condition for Bottom wear
-        //|| ((item.CompareTag("Tshirt_blue") || item.CompareTag("Red_jacket") || item.CompareTag("Tshirt_yellow") ) && targetCell.CompareTag("Foot"))
+        || ((item.CompareTag("Casual_Boot") || item.CompareTag("WinterBoot") || item.CompareTag("Slipper") ) && targetCell.CompareTag("Foot"))
         )
             )
         
 		{
-			DestroyItem();                                            	// Remove current item from this cell
+			//DestroyItem();                                            	// Remove current item from this cell
 			myDadItem = null;
 			DragAndDropCell cell = item.GetComponent<DragAndDropCell>();
 			if (cell != null)
@@ -229,8 +230,8 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 					item.name = itemName;
 				}
 			}
-			item.transform.SetParent(transform, false);
-			item.transform.localPosition = Vector3.zero;
+			//item.transform.SetParent(transform, false);
+			//item.transform.localPosition = Vector3.zero;
 			item.MakeRaycast(true);
 			myDadItem = item;
 
@@ -257,11 +258,11 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
 			desc.item = myDadItem;
             desc.sourceCell = this;
             desc.destinationCell = this;
+            Debug.LogError("MyDadItem: "  + myDadItem.name);
             SendNotification(desc);                                         // Notify application about item destruction
 			if (myDadItem != null)
 			{
-                
-				Destroy(myDadItem.gameObject);
+                Destroy(myDadItem.gameObject);
 			}
         }
 		myDadItem = null;
@@ -312,6 +313,9 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
         {
             yield return new WaitForEndOfFrame();
         }
+        Debug.LogError("Item: " + desc.item.name);
+        Debug.LogError("destinationCell: " + desc.destinationCell.name);
+        Debug.LogError("Source: " + desc.sourceCell.name);
         desc.triggerType = TriggerType.DropEventEnd;
         SendNotification(desc);
     }
@@ -409,68 +413,172 @@ public class DragAndDropCell : MonoBehaviour, IDropHandler
     void DressFunction(DragAndDropItem item )
     {
         //Debug.LogError("Target Tag: " + destinationCell.tag);
+
+        if(item.isUsed){
+                ClothingManager.instance.WarningObject.GetComponentInChildren<Text>().text = "It's used cloth";
+                ClothingManager.instance.WarningObject.SetActive(true);
+                StartCoroutine(ClothingManager.instance.GameObjectBehaviour(ClothingManager.instance.WarningObject, false, 3f));
+                ClothingManager.instance.speechSound.clip = ClothingManager.instance.forWrongChoice;
+                ClothingManager.instance.speechSound.Play();
+                return;
+        }
+        #region Top Wear
         if (item.CompareTag("TShirt_blue"))
         {
             Character.instance.upperNum = 1;
             Character.instance.InitDresses();
-            foreach (var top in ClothingManager.instance.topWear)
-            {
-                top.raycastTarget = false;
-            }
-            ClothingManager.instance.handIndicator.anchoredPosition = new Vector2(304, 66.1f);
-            ClothingManager.instance.clothIndicator.anchoredPosition = new Vector2(150, 66.1f);
+            ClothingManager.instance.AfterTopWear();
+            item.isUsed = true;
         }
         if (item.CompareTag("TShirt_yellow"))
         {
             Character.instance.upperNum = 2;
             Character.instance.InitDresses();
-             foreach (var top in ClothingManager.instance.topWear)
-            {
-                top.raycastTarget = false;
-            }
-            ClothingManager.instance.handIndicator.anchoredPosition = new Vector2(304, 66.1f);
-            ClothingManager.instance.clothIndicator.anchoredPosition = new Vector2(150, 66.1f);
+             ClothingManager.instance.AfterTopWear();
+             item.isUsed = true;
         }
         if (item.CompareTag("Red_jacket") )
         {
-            ClothingManager.instance.WarningObject.GetComponentInChildren<Text>().text = "It's very hot outside!!!";
-            ClothingManager.instance.WarningObject.SetActive(true);
-            StartCoroutine(ClothingManager.instance.GameObjectBehaviour(ClothingManager.instance.WarningObject, false));
-            ClothingManager.instance.WarningObject.SetActive(true);
+            if(ClothingManager.instance.isSummer){
+                ClothingManager.instance.WarningObject.GetComponentInChildren<Text>().text = "It's very hot outside!!!";
+                ClothingManager.instance.WarningObject.SetActive(true);
+                StartCoroutine(ClothingManager.instance.GameObjectBehaviour(ClothingManager.instance.WarningObject, false));
+                ClothingManager.instance.speechSound.clip = ClothingManager.instance.forWrongChoice;
+                ClothingManager.instance.speechSound.Play();
+            }else{
+                Character.instance.upperNum = 3;
+                Character.instance.InitDresses();
+                ClothingManager.instance.AfterTopWear();
+                item.isUsed = true;
+
+            }
+           
             
         }
 
+        #endregion
+
+        #region Bottom Wear
+
         if (item.CompareTag("Full_Pant") )
         {
-            if(ClothingManager.instance.isRainy){
+            if(!ClothingManager.instance.isSummer){
                 Character.instance.downNum = 3;
                 Character.instance.InitDresses();
                 foreach (var top in ClothingManager.instance.bottomWear)
                 {
                     top.raycastTarget = false;
                 }
+                item.isUsed = true;
+                ClothingManager.instance.AfterBottomWear();
+            }else{
+                ClothingManager.instance.WarningObject.GetComponentInChildren<Text>().text = "It's very hot outside!!!";
+                ClothingManager.instance.WarningObject.SetActive(true);
+                StartCoroutine(ClothingManager.instance.GameObjectBehaviour(ClothingManager.instance.WarningObject, false));
             }
         }
         if (item.CompareTag("Short_skin") )
         {
+            item.isUsed = true;
+
             Character.instance.downNum = 2;
             Character.instance.InitDresses();
-            foreach (var top in ClothingManager.instance.bottomWear)
-            {
-                top.raycastTarget = false;
-            }
+            ClothingManager.instance.AfterBottomWear();
         }
          if (item.CompareTag("Short_blue") )
         {
+            item.isUsed = true;
+
             Character.instance.downNum = 1;
             Character.instance.InitDresses();
-            foreach (var top in ClothingManager.instance.bottomWear)
+            ClothingManager.instance.AfterBottomWear();
+        }
+
+        #endregion
+
+        #region Foot Wear
+
+
+        if(item.CompareTag("WinterBoot")){
+            if(ClothingManager.instance.isRainy){
+                Character.instance.shoeNum = 1;
+                Character.instance.InitDresses();
+                item.isUsed = true;
+
+                foreach (var top in ClothingManager.instance.footWear)
+                {
+                    top.raycastTarget = false;
+                }
+                ResetOnEnd();
+
+            }else{
+                
+                ClothingManager.instance.WarningObject.GetComponentInChildren<Text>().text = "It's very hot outside to wear that!!!";
+                ClothingManager.instance.WarningObject.SetActive(true);
+                StartCoroutine(ClothingManager.instance.GameObjectBehaviour(ClothingManager.instance.WarningObject, false));
+            }
+            if(ClothingManager.instance.isSummer){
+                ClothingManager.instance.isSummerCompleted = true;
+                ClothingManager.instance.isSummer = false;
+            }
+        }
+        
+        if(item.CompareTag("Slipper")){
+            if(ClothingManager.instance.isSummer){
+                item.isUsed = true;
+
+                Character.instance.shoeNum = 2;
+                Character.instance.InitDresses();
+                foreach (var top in ClothingManager.instance.footWear)
+                {
+                    top.raycastTarget = false;
+                }
+            }
+            else{
+                ClothingManager.instance.WarningObject.GetComponentInChildren<Text>().text = "It's very Cold outside to wear that!!!";
+                ClothingManager.instance.WarningObject.SetActive(true);
+                StartCoroutine(ClothingManager.instance.GameObjectBehaviour(ClothingManager.instance.WarningObject, false));
+            }
+               if(ClothingManager.instance.isSummer){
+                    ClothingManager.instance.isSummerCompleted = true;
+                    ClothingManager.instance.isSummer = false;
+                }
+           ResetOnEnd();
+           
+        }
+
+        if(item.CompareTag("Casual_Boot")){
+                item.isUsed = true;
+
+            Character.instance.shoeNum = 3;
+            Character.instance.InitDresses();
+            foreach (var top in ClothingManager.instance.footWear)
             {
                 top.raycastTarget = false;
             }
+            if(ClothingManager.instance.isSummer){
+                ClothingManager.instance.isSummerCompleted = true;
+                ClothingManager.instance.isSummer = false;
+            }
+           ResetOnEnd();
+
         }
+
+        #endregion
+
         item.gameObject.SetActive(false);
         
 
     }
+
+
+   void ResetOnEnd(){
+        ClothingManager.instance.anim.SetTrigger("VideoEnd");
+        Character.instance.downNum = 0;
+        Character.instance.upperNum = 0;
+        Character.instance.shoeNum = 0;
+        Character.instance.hairNum = 0;
+        Character.instance.InitDresses();
+        ClothingManager.instance.successPanel.SetActive(true);
+   }
 }

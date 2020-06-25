@@ -38,7 +38,7 @@ public class Character : MonoBehaviour {
     Transform shoeGroup;
 
 	// to find out current selected body part count
-	int hairNum = 0;
+	public int hairNum = 0;
 	public int upperNum = 0;
 	public int downNum = 0;
 	int glassNum = 0;
@@ -107,7 +107,7 @@ public class Character : MonoBehaviour {
 	// hide all the parts and show selected part
 	void ShowDress( List<GameObject> dressList, int dressNumber ) {
 
-		Debug.Log("Dress Number: " + dressNumber);
+		//Debug.Log("Dress Number: " + dressNumber);
 
 		for (int i = 0; i < dressList.Count; i++) {
 			

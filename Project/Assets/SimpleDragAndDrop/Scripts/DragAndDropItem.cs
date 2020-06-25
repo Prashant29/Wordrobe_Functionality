@@ -23,6 +23,9 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 	private static string canvasName = "DragAndDropCanvas";                   		// Name of canvas
 	private static int canvasSortOrder = 100;										// Sort order for canvas
 
+
+	public bool isUsed = false;
+
 	/// <summary>
 	/// Awake this instance.
 	/// </summary>
@@ -125,7 +128,7 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 	/// <param name="condition"> true - enable, false - disable </param>
 	public void MakeRaycast(bool condition)
 	{
-		Debug.Log("Make Raycast: " + condition);
+//		Debug.Log("Make Raycast: " + condition);
 		Image image = GetComponent<Image>();
 		if (image != null)
 		{
@@ -137,7 +140,7 @@ public class DragAndDropItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 				c.a = 1;
 				image.color = c;
             }
-			//image.raycastTarget = condition;
+			image.raycastTarget = condition;
 		}
 	}
 

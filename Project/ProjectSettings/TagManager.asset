@@ -18,6 +18,10 @@ TagManager:
   - Short_skin
   - Full_Pant
   - RainCoat
+  - WinterBoot
+  - Slipper
+  - Casual_Boot
+  - Foot
   layers:
   - Default
   - TransparentFX
